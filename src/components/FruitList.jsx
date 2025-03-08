@@ -11,7 +11,7 @@ const FruitList = ({ theme }) => {
   const [formData, setFormData] = useState({
     name: "",
     color: "",
-    quantity: 0,
+    quantity: 1,
   });
   const [isConfirmed, setIsConfirmed] = useState(false);
 
@@ -25,12 +25,27 @@ const FruitList = ({ theme }) => {
     setFruits(fruits.filter((fruit) => fruit.id !== id));
   };
 
-  const handleAdd = (e) => {
+  const handleAddOrUpdate = (e) => {
     e.preventDefault();
-    if (formData.name && formData.color && formData.quantity > 0) {
-      const newFruit = { id: Date.now(), ...formData };
-      setFruits([...fruits, newFruit]);
-      setFormData({ name: "", color: "", quantity: 0 });
+    if (formData.name && formData.color && formData.quantity > 1) {
+      if (isEditing) {
+        if (isConfirmed) {
+          setFruits((prevFruits) =>
+            prevFruits.map((fruit) =>
+              fruit.id === selectedFruit.id ? formData : fruit
+            )
+          );
+          setIsEditing(false);
+          setIsConfirmed(false);
+        } else {
+          alert("Please confirm the changes before saving.");
+          return;
+        }
+      } else {
+        const newFruit = { id: Date.now(), ...formData };
+        setFruits([...fruits, newFruit]);
+      }
+      setFormData({ name: "", color: "", quantity: 1 });
     } else {
       alert("Please fill all fields correctly.");
     }
@@ -44,34 +59,20 @@ const FruitList = ({ theme }) => {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (isConfirmed) {
-      setFruits((prevFruits) =>
-        prevFruits.map((fruit) =>
-          fruit.id === selectedFruit.id ? formData : fruit
-        )
-      );
-      setIsEditing(false);
-      setIsConfirmed(false);
-    } else {
-      alert("Please confirm the changes before saving.");
-    }
-  };
-
   const isLightTheme = theme === "light";
 
   const styles = {
     container: {
       display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
       flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
       marginTop: "10px",
       height: "100vh",
       backgroundColor: isLightTheme ? "#f3f4f6" : "#2d2d2d",
-      transition: "background 0.3s ease",
-      padding: "20px",
+      color: isLightTheme ? "#000" : "#fff",
+      padding: "10px",
+      fontFamily: "Arial, sans-serif",
     },
     table: {
       width: "80%",
@@ -80,106 +81,118 @@ const FruitList = ({ theme }) => {
       color: isLightTheme ? "#000" : "#ddd",
       borderRadius: "8px",
       overflow: "hidden",
-      fontSize: "22px",
-      marginBottom: "20px",
+      textAlign: "left",
+      boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+      marginTop: "20px",
     },
     th: {
       backgroundColor: isLightTheme ? "#e0e0e0" : "#444",
-      padding: "18px",
+      padding: "12px",
       textAlign: "left",
       borderBottom: "2px solid #ddd",
-      fontSize: "24px",
     },
     td: {
-      padding: "16px",
+      padding: "12px",
+      fontSize: "20px",
       borderBottom: "1px solid #ddd",
-      fontSize: "22px",
+      transition: "background 0.3s ease",
+    },
+    rowHover: {
+      backgroundColor: isLightTheme ? "#f5f5f5" : "#555",
     },
     button: {
-      padding: "14px 18px",
-      borderRadius: "10px",
+      padding: "10px 15px",
+      margin: "10px",
       border: "none",
+      borderRadius: "8px",
       cursor: "pointer",
-      fontSize: "20px",
-      marginRight: "12px",
-      backgroundColor: "#6c757d",
+      fontSize: "16px",
+      transition: "all 0.3s ease",
+      backgroundColor: "gray",
       color: "white",
     },
-    input: {
-      width: "100%",
-      padding: "14px",
-      borderRadius: "10px",
-      border: "1px solid #bbb",
-      fontSize: "20px",
-    },
-    label: {
-      fontSize: "22px",
-      fontWeight: "bold",
-      marginRight: "15px",
-    },
-    formGroup: {
-      display: "flex",
-      alignItems: "center",
-      marginBottom: "20px",
-    },
-    addFormContainer: {
-      with: "100%",
+    form: {
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      gap: "10px",
-      marginBottom: "20px",
+      backgroundColor: isLightTheme ? "#fff" : "#444",
+      padding: "20px",
+      borderRadius: "10px",
+      boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
+      width: "40%",
+      marginTop: "20px",
+    },
+    input: {
+      padding: "12px",
+      margin: "8px 0",
+      fontSize: "16px",
+      width: "80%",
+      borderRadius: "8px",
+      border: "1px solid #ccc",
+      outline: "none",
+      transition: "border 0.3s ease",
+    },
+    inputFocus: {
+      border: "1px solid rgb(0, 0, 0)",
+    },
+    label: {
+      alignSelf: "flex-start",
+      fontSize: "20px",
+      marginTop: "10px",
     },
   };
 
   return (
     <div style={styles.container}>
-      <div style={styles.addFormContainer}>
-        <form onSubmit={handleAdd}>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Fruit Name: </label>
+      <form style={styles.form} onSubmit={handleAddOrUpdate}>
+        <h2>Fruit List </h2>
+        <label style={styles.label}>Fruit Name:</label>
+        <input
+          type="text"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          style={styles.input}
+        />
+        <label style={styles.label}>Fruit Color:</label>
+        <input
+          type="text"
+          name="color"
+          value={formData.color}
+          onChange={handleChange}
+          style={styles.input}
+        />
+        <label style={styles.label}>Fruit Quantity:</label>
+        <input
+          type="number"
+          name="quantity"
+          min={1}
+          value={formData.quantity}
+          onChange={handleChange}
+          style={styles.input}
+        />
+        {isEditing && (
+          <div>
             <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              style={styles.input}
-              placeholder="Enter Fruit Name"
+              type="checkbox"
+              checked={isConfirmed}
+              onChange={(e) => setIsConfirmed(e.target.checked)}
             />
+            <label>Confirm Changes</label>
           </div>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Color: </label>
-            <input
-              type="text"
-              name="color"
-              placeholder="Enter Fruit color"
-              value={formData.color}
-              onChange={handleChange}
-              style={styles.input}
-            />
-          </div>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Quantity: </label>
-            <input
-              type="number"
-              name="quantity"
-              value={formData.quantity}
-              onChange={handleChange}
-              style={styles.input}
-            />
-          </div>
+        )}
+        <div>
           <button type="submit" style={styles.button}>
-            Add Fruit
+            {isEditing ? "Save Changes" : "Add Fruit"}
           </button>
-        </form>
-      </div>
-
+        </div>
+      </form>
       <table style={styles.table}>
         <thead>
           <tr>
-            <th style={styles.th}>Name</th>
-            <th style={styles.th}>Color</th>
-            <th style={styles.th}>Quantity</th>
+            <th style={styles.th}>Fruit Name</th>
+            <th style={styles.th}>Fruit Color</th>
+            <th style={styles.th}>Fruit Quantity</th>
             <th style={styles.th}>Actions</th>
           </tr>
         </thead>
@@ -188,17 +201,16 @@ const FruitList = ({ theme }) => {
             <tr key={fruit.id}>
               <td style={styles.td}>{fruit.name}</td>
               <td style={styles.td}>
-                {" "}
                 <span
                   style={{
                     display: "inline-block",
-                    width: "15px",
-                    height: "15px",
+                    width: "20px",
+                    height: "20px",
                     backgroundColor: fruit.color,
                     borderRadius: "50%",
                   }}
-                ></span>&nbsp;
-                {fruit.color}
+                ></span>
+                &nbsp;{fruit.color}
               </td>
               <td style={styles.td}>{fruit.quantity}</td>
               <td style={styles.td}>
