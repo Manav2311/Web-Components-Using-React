@@ -14,6 +14,8 @@ function Header({ activeTab, setActiveTab, theme}) {
 
   const headerStyle = {
     display: "flex",
+    position: "sticky",
+    top: 0,
     flexWrap: "wrap",
     justifyContent: "space-around",
     alignItems: "center",
