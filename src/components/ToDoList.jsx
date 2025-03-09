@@ -45,6 +45,7 @@ function ToDoList({ theme }) {
       backgroundColor: isLightTheme ? "#f3f4f6" : "#333",
       color: isLightTheme ? "#333" : "#fff",
       padding: "10px",
+      fontSize: "16px",
       border: "1px solid #ccc",
       borderRadius: "6px",
       outline: "none",
@@ -103,6 +104,10 @@ function ToDoList({ theme }) {
 
   const handleTaskAction = (action, index) => {
     if (action === "add" && task.trim() !== "") {
+      if (tasks.some((t) => t.task.toLowerCase() === task.toLowerCase())) {
+        alert("Task already exists!");
+        return;
+      }
       setTasks([...tasks, { task, completed: false }]);
       setTask("");
     } else if (action === "toggle") {
@@ -116,7 +121,6 @@ function ToDoList({ theme }) {
     }
   };
 
-  // ⏩ Add task on Enter key press
   const handleKeyPress = (event) => {
     if (event.key === "Enter") {
       handleTaskAction("add");
@@ -135,7 +139,7 @@ function ToDoList({ theme }) {
             placeholder="Add a new task..."
             value={task}
             onChange={(e) => setTask(e.target.value)}
-            onKeyDown={handleKeyPress} // 🔥 Added Key Press Event
+            onKeyDown={handleKeyPress}
           />
           <button
             style={styles.button}
