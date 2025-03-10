@@ -52,7 +52,7 @@ function ToDoList({ theme }) {
       transition: "background 0.3s ease, color 0.3s ease",
     },
     button: {
-      backgroundColor: "gray",
+      backgroundColor: isLightTheme?"gray":"#2269bf",
       color: "#fff",
       padding: "10px 16px",
       fontSize: "16px",
